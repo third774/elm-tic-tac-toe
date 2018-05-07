@@ -76,10 +76,10 @@ renderSquare colIndex rowIndex squareValue =
         [ text
             (case squareValue of
                 X ->
-                    "X"
+                    "⚔️"
 
                 O ->
-                    "O"
+                    "⏰"
 
                 Empty ->
                     " "
