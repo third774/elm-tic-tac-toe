@@ -10,6 +10,7 @@ import Html.Events exposing (onClick)
 
 type alias Model =
     { grid : Grid
+    , currentPlayerSymbol : Player
     }
 
 
@@ -19,13 +20,18 @@ type alias Grid =
 
 type SquareValue
     = Empty
-    | X
+    | PlayerSymbol Player
+
+
+type Player
+    = X
     | O
 
 
 init : ( Model, Cmd Msg )
 init =
     ( { grid = [ [ Empty, Empty, Empty ], [ Empty, Empty, Empty ], [ Empty, Empty, Empty ] ]
+      , currentPlayerSymbol = X
       }
     , Cmd.none
     )
@@ -36,7 +42,7 @@ init =
 
 
 type Msg
-    = UpdateSquare SquareValue Int Int
+    = UpdateSquare Int Int
 
 
 updateGridValue : Int -> Int -> SquareValue -> Grid -> Grid
@@ -61,8 +67,19 @@ updateGridValue rowIndex colIndex squareValue grid =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        UpdateSquare newValue rowIndex colIndex ->
-            ( { model | grid = (updateGridValue rowIndex colIndex newValue model.grid) }, Cmd.none )
+        UpdateSquare rowIndex colIndex ->
+            ( { model
+                | grid = (updateGridValue rowIndex colIndex (PlayerSymbol model.currentPlayerSymbol) model.grid)
+                , currentPlayerSymbol =
+                    case model.currentPlayerSymbol of
+                        X ->
+                            O
+
+                        O ->
+                            X
+              }
+            , Cmd.none
+            )
 
 
 
@@ -72,13 +89,13 @@ update msg model =
 
 renderSquare : Int -> Int -> SquareValue -> Html Msg
 renderSquare colIndex rowIndex squareValue =
-    div [ class "square", onClick (UpdateSquare X rowIndex colIndex) ]
+    div [ class "square", onClick (UpdateSquare rowIndex colIndex) ]
         [ text
             (case squareValue of
-                X ->
+                PlayerSymbol X ->
                     "⚔️"
 
-                O ->
+                PlayerSymbol O ->
                     "⏰"
 
                 Empty ->
