@@ -11,6 +11,7 @@ import Html.Events exposing (onClick)
 type alias Model =
     { grid : Grid
     , currentPlayerSymbol : Player
+    , winner : Maybe Player
     }
 
 
@@ -32,6 +33,7 @@ init : ( Model, Cmd Msg )
 init =
     ( { grid = [ [ Empty, Empty, Empty ], [ Empty, Empty, Empty ], [ Empty, Empty, Empty ] ]
       , currentPlayerSymbol = X
+      , winner = Maybe.Nothing
       }
     , Cmd.none
     )
