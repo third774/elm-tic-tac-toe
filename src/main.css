@@ -7,6 +7,10 @@ body {
   align-items: center;
   position: absolute;
   top: 0; right: 0; bottom: 0; left: 0;
+  text-align: center;
+}
+
+.heading {
 }
 
 .row {
@@ -22,4 +26,8 @@ body {
   font-size: 60px;
   background-color: antiquewhite;
   border: 1px solid darkslategray;
+}
+
+.reset {
+  margin-top: 18px;
 }

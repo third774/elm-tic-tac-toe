@@ -1,8 +1,9 @@
 module Main exposing (..)
 
-import Html exposing (Html, text, div, h1, img)
+import Html exposing (Html, text, div, h1, button)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
+import Array exposing (Array)
 
 
 ---- MODEL ----
@@ -16,7 +17,7 @@ type alias Model =
 
 
 type alias Grid =
-    List (List SquareValue)
+    Array (Array SquareValue)
 
 
 type SquareValue
@@ -31,7 +32,7 @@ type Player
 
 init : ( Model, Cmd Msg )
 init =
-    ( { grid = [ [ Empty, Empty, Empty ], [ Empty, Empty, Empty ], [ Empty, Empty, Empty ] ]
+    ( { grid = Array.fromList [ Array.fromList [ Empty, Empty, Empty ], Array.fromList [ Empty, Empty, Empty ], Array.fromList [ Empty, Empty, Empty ] ]
       , currentPlayerSymbol = X
       , winner = Maybe.Nothing
       }
@@ -45,22 +46,17 @@ init =
 
 type Msg
     = UpdateSquare Int Int
+    | ResetGame
 
 
 updateGridValue : Int -> Int -> SquareValue -> Grid -> Grid
 updateGridValue rowIndex colIndex squareValue grid =
-    List.indexedMap
+    Array.indexedMap
         (\rowI ->
             \row ->
-                List.indexedMap
-                    (\colI ->
-                        \oldValue ->
-                            (if rowIndex == rowI && colIndex == colI then
-                                squareValue
-                             else
-                                oldValue
-                            )
-                    )
+                if rowI == rowIndex then
+                    Array.set colIndex squareValue row
+                else
                     row
         )
         grid
@@ -82,6 +78,9 @@ update msg model =
               }
             , Cmd.none
             )
+
+        ResetGame ->
+            init
 
 
 
@@ -106,25 +105,31 @@ renderSquare colIndex rowIndex squareValue =
         ]
 
 
-renderRow : Int -> List SquareValue -> Html Msg
+renderRow : Int -> Array SquareValue -> Html Msg
 renderRow rowIndex row =
     div [ class "row" ]
-        (List.indexedMap (\colIndex -> renderSquare colIndex rowIndex) row)
+        (Array.toList
+            (Array.indexedMap (\colIndex -> renderSquare colIndex rowIndex) row)
+        )
 
 
 renderGrid : Grid -> Html Msg
 renderGrid grid =
     div []
-        (List.indexedMap
-            (\rowIndex -> renderRow rowIndex)
-            grid
+        (Array.toList
+            (Array.indexedMap
+                (\rowIndex -> renderRow rowIndex)
+                grid
+            )
         )
 
 
 view : Model -> Html Msg
 view model =
     div []
-        [ renderGrid model.grid
+        [ h1 [ class "heading" ] [ text "Tic Tac Toe" ]
+        , renderGrid model.grid
+        , button [ class "reset", onClick ResetGame ] [ text "Reset" ]
         ]
 
 
