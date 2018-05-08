@@ -12,8 +12,12 @@ import Array exposing (Array)
 type alias Model =
     { grid : Grid
     , currentPlayerSymbol : Player
-    , winner : Maybe Player
+    , winner : Winner
     }
+
+
+type alias Winner =
+    Maybe Player
 
 
 type alias Grid =
@@ -34,7 +38,7 @@ init : ( Model, Cmd Msg )
 init =
     ( { grid = Array.fromList [ Array.fromList [ Empty, Empty, Empty ], Array.fromList [ Empty, Empty, Empty ], Array.fromList [ Empty, Empty, Empty ] ]
       , currentPlayerSymbol = X
-      , winner = Maybe.Nothing
+      , winner = Nothing
       }
     , Cmd.none
     )
@@ -62,22 +66,82 @@ updateGridValue rowIndex colIndex squareValue grid =
         grid
 
 
+parseGridForWinner : Grid -> Winner
+parseGridForWinner grid =
+    case grid |> Array.map Array.toList |> Array.toList of
+        [ [ PlayerSymbol X, PlayerSymbol X, PlayerSymbol X ], _, _ ] ->
+            Just X
+
+        [ _, [ PlayerSymbol X, PlayerSymbol X, PlayerSymbol X ], _ ] ->
+            Just X
+
+        [ _, _, [ PlayerSymbol X, PlayerSymbol X, PlayerSymbol X ] ] ->
+            Just X
+
+        [ [ PlayerSymbol X, _, _ ], [ PlayerSymbol X, _, _ ], [ PlayerSymbol X, _, _ ] ] ->
+            Just X
+
+        [ [ _, PlayerSymbol X, _ ], [ _, PlayerSymbol X, _ ], [ _, PlayerSymbol X, _ ] ] ->
+            Just X
+
+        [ [ _, _, PlayerSymbol X ], [ _, _, PlayerSymbol X ], [ _, _, PlayerSymbol X ] ] ->
+            Just X
+
+        [ [ _, _, PlayerSymbol X ], [ _, PlayerSymbol X, _ ], [ PlayerSymbol X, _, _ ] ] ->
+            Just X
+
+        [ [ PlayerSymbol X, _, _ ], [ _, PlayerSymbol X, _ ], [ _, _, PlayerSymbol X ] ] ->
+            Just X
+
+        [ [ PlayerSymbol O, PlayerSymbol O, PlayerSymbol O ], _, _ ] ->
+            Just O
+
+        [ _, [ PlayerSymbol O, PlayerSymbol O, PlayerSymbol O ], _ ] ->
+            Just O
+
+        [ _, _, [ PlayerSymbol O, PlayerSymbol O, PlayerSymbol O ] ] ->
+            Just O
+
+        [ [ PlayerSymbol O, _, _ ], [ PlayerSymbol O, _, _ ], [ PlayerSymbol O, _, _ ] ] ->
+            Just O
+
+        [ [ _, PlayerSymbol O, _ ], [ _, PlayerSymbol O, _ ], [ _, PlayerSymbol O, _ ] ] ->
+            Just O
+
+        [ [ _, _, PlayerSymbol O ], [ _, _, PlayerSymbol O ], [ _, _, PlayerSymbol O ] ] ->
+            Just O
+
+        [ [ _, _, PlayerSymbol O ], [ _, PlayerSymbol O, _ ], [ PlayerSymbol O, _, _ ] ] ->
+            Just O
+
+        [ [ PlayerSymbol O, _, _ ], [ _, PlayerSymbol O, _ ], [ _, _, PlayerSymbol O ] ] ->
+            Just O
+
+        _ ->
+            Nothing
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpdateSquare rowIndex colIndex ->
-            ( { model
-                | grid = (updateGridValue rowIndex colIndex (PlayerSymbol model.currentPlayerSymbol) model.grid)
-                , currentPlayerSymbol =
-                    case model.currentPlayerSymbol of
-                        X ->
-                            O
+            let
+                updatedGrid =
+                    (updateGridValue rowIndex colIndex (PlayerSymbol model.currentPlayerSymbol) model.grid)
+            in
+                ( { model
+                    | grid = updatedGrid
+                    , winner = Nothing
+                    , currentPlayerSymbol =
+                        case model.currentPlayerSymbol of
+                            X ->
+                                O
 
-                        O ->
-                            X
-              }
-            , Cmd.none
-            )
+                            O ->
+                                X
+                  }
+                , Cmd.none
+                )
 
         ResetGame ->
             init
