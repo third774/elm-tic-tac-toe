@@ -66,82 +66,36 @@ updateGridValue rowIndex colIndex squareValue grid =
         grid
 
 
-parseGridForWinner : Grid -> Winner
-parseGridForWinner grid =
-    case grid |> Array.map Array.toList |> Array.toList of
-        [ [ PlayerSymbol X, PlayerSymbol X, PlayerSymbol X ], _, _ ] ->
-            Just X
-
-        [ _, [ PlayerSymbol X, PlayerSymbol X, PlayerSymbol X ], _ ] ->
-            Just X
-
-        [ _, _, [ PlayerSymbol X, PlayerSymbol X, PlayerSymbol X ] ] ->
-            Just X
-
-        [ [ PlayerSymbol X, _, _ ], [ PlayerSymbol X, _, _ ], [ PlayerSymbol X, _, _ ] ] ->
-            Just X
-
-        [ [ _, PlayerSymbol X, _ ], [ _, PlayerSymbol X, _ ], [ _, PlayerSymbol X, _ ] ] ->
-            Just X
-
-        [ [ _, _, PlayerSymbol X ], [ _, _, PlayerSymbol X ], [ _, _, PlayerSymbol X ] ] ->
-            Just X
-
-        [ [ _, _, PlayerSymbol X ], [ _, PlayerSymbol X, _ ], [ PlayerSymbol X, _, _ ] ] ->
-            Just X
-
-        [ [ PlayerSymbol X, _, _ ], [ _, PlayerSymbol X, _ ], [ _, _, PlayerSymbol X ] ] ->
-            Just X
-
-        [ [ PlayerSymbol O, PlayerSymbol O, PlayerSymbol O ], _, _ ] ->
-            Just O
-
-        [ _, [ PlayerSymbol O, PlayerSymbol O, PlayerSymbol O ], _ ] ->
-            Just O
-
-        [ _, _, [ PlayerSymbol O, PlayerSymbol O, PlayerSymbol O ] ] ->
-            Just O
-
-        [ [ PlayerSymbol O, _, _ ], [ PlayerSymbol O, _, _ ], [ PlayerSymbol O, _, _ ] ] ->
-            Just O
-
-        [ [ _, PlayerSymbol O, _ ], [ _, PlayerSymbol O, _ ], [ _, PlayerSymbol O, _ ] ] ->
-            Just O
-
-        [ [ _, _, PlayerSymbol O ], [ _, _, PlayerSymbol O ], [ _, _, PlayerSymbol O ] ] ->
-            Just O
-
-        [ [ _, _, PlayerSymbol O ], [ _, PlayerSymbol O, _ ], [ PlayerSymbol O, _, _ ] ] ->
-            Just O
-
-        [ [ PlayerSymbol O, _, _ ], [ _, PlayerSymbol O, _ ], [ _, _, PlayerSymbol O ] ] ->
-            Just O
-
-        _ ->
-            Nothing
-
-
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpdateSquare rowIndex colIndex ->
             let
-                updatedGrid =
-                    (updateGridValue rowIndex colIndex (PlayerSymbol model.currentPlayerSymbol) model.grid)
+                currentValue =
+                    Array.get rowIndex model.grid |> Maybe.andThen (Array.get colIndex) |> Maybe.withDefault Empty
             in
-                ( { model
-                    | grid = updatedGrid
-                    , winner = Nothing
-                    , currentPlayerSymbol =
-                        case model.currentPlayerSymbol of
-                            X ->
-                                O
+                case currentValue of
+                    Empty ->
+                        let
+                            updatedGrid =
+                                (updateGridValue rowIndex colIndex (PlayerSymbol model.currentPlayerSymbol) model.grid)
+                        in
+                            ( { model
+                                | grid = updatedGrid
+                                , winner = Nothing
+                                , currentPlayerSymbol =
+                                    case model.currentPlayerSymbol of
+                                        X ->
+                                            O
 
-                            O ->
-                                X
-                  }
-                , Cmd.none
-                )
+                                        O ->
+                                            X
+                              }
+                            , Cmd.none
+                            )
+
+                    _ ->
+                        ( model, Cmd.none )
 
         ResetGame ->
             init
