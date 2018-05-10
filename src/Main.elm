@@ -133,22 +133,22 @@ parseGridForWinner grid =
                                 Just a
 
                             Nothing ->
-                                case allTheSameValues resultSet of
-                                    Just (PlayerSymbol X) ->
-                                        Just X
-
-                                    Just (PlayerSymbol O) ->
-                                        Just O
-
-                                    _ ->
-                                        Nothing
+                                allTheSameValues resultSet |> maybeMapSquareValueToWinner
                 )
                 Nothing
 
 
+maybeMapSquareValueToWinner : Maybe SquareValue -> Winner
+maybeMapSquareValueToWinner squareValue =
+    case squareValue of
+        Just (PlayerSymbol X) ->
+            Just X
 
--- find f = foldWhile (\x _ -> if f x then Finished (Just x) else KeepGoing Nothing)
---     (KeepGoing Nothing)
+        Just (PlayerSymbol O) ->
+            Just O
+
+        _ ->
+            Nothing
 
 
 allTheSameValues : List a -> Maybe a
