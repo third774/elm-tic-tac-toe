@@ -4,6 +4,7 @@ import Html exposing (Html, text, div, h1, button)
 import Html.Attributes exposing (class)
 import Html.Events exposing (onClick)
 import Array exposing (Array)
+import Dict
 
 
 ---- MODEL ----
@@ -66,6 +67,103 @@ updateGridValue rowIndex colIndex squareValue grid =
         grid
 
 
+indexWithValue : Array a -> Array ( Int, a )
+indexWithValue list =
+    Array.indexedMap (\i -> \v -> ( i, v )) list
+
+
+appendToListInDict : String -> a -> Dict.Dict String (List a) -> Dict.Dict String (List a)
+appendToListInDict keyName value dict =
+    case Dict.get keyName dict of
+        Just list ->
+            Dict.insert keyName (value :: list) dict
+
+        Nothing ->
+            Dict.insert keyName (List.singleton value) dict
+
+
+parseGridForWinner : Grid -> Winner
+parseGridForWinner grid =
+    let
+        emptyDict : Dict.Dict String (List SquareValue)
+        emptyDict =
+            Dict.empty
+
+        resultsDictValues =
+            grid
+                |> indexWithValue
+                |> Array.foldl
+                    (\( rowIndex, row ) ->
+                        \rowResults ->
+                            row
+                                |> indexWithValue
+                                |> Array.foldl
+                                    (\( colIndex, squareValue ) ->
+                                        \colResults ->
+                                            let
+                                                nonDiagonalResults =
+                                                    colResults
+                                                        |> appendToListInDict ("Horizontal" ++ toString colIndex) squareValue
+                                                        |> appendToListInDict ("Vertical" ++ toString rowIndex) squareValue
+
+                                                withDiagonalResults =
+                                                    if colIndex == rowIndex then
+                                                        nonDiagonalResults |> appendToListInDict ("TopLeftToBottomRight") squareValue
+                                                    else if (colIndex + rowIndex) == (Array.length row) - 1 then
+                                                        nonDiagonalResults |> appendToListInDict ("BottomLeftToTopRight") squareValue
+                                                    else
+                                                        nonDiagonalResults
+                                            in
+                                                withDiagonalResults
+                                    )
+                                    rowResults
+                    )
+                    emptyDict
+                |> Dict.values
+
+        _ =
+            resultsDictValues |> toString |> Debug.log "results"
+    in
+        resultsDictValues
+            |> List.foldl
+                (\resultSet ->
+                    \winner ->
+                        case winner of
+                            Just a ->
+                                Just a
+
+                            Nothing ->
+                                case allTheSameValues resultSet of
+                                    Just (PlayerSymbol X) ->
+                                        Just X
+
+                                    Just (PlayerSymbol O) ->
+                                        Just O
+
+                                    _ ->
+                                        Nothing
+                )
+                Nothing
+
+
+
+-- find f = foldWhile (\x _ -> if f x then Finished (Just x) else KeepGoing Nothing)
+--     (KeepGoing Nothing)
+
+
+allTheSameValues : List a -> Maybe a
+allTheSameValues list =
+    case List.head list of
+        Just a ->
+            if list |> List.all (\x -> x == a) then
+                Just a
+            else
+                Nothing
+
+        _ ->
+            Nothing
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -82,7 +180,7 @@ update msg model =
                         in
                             ( { model
                                 | grid = updatedGrid
-                                , winner = Nothing
+                                , winner = parseGridForWinner updatedGrid
                                 , currentPlayerSymbol =
                                     case model.currentPlayerSymbol of
                                         X ->
