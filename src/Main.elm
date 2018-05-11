@@ -216,7 +216,7 @@ renderSquare colIndex rowIndex squareValue =
                     "⏰"
 
                 Empty ->
-                    " "
+                    ""
             )
         ]
 
