@@ -72,23 +72,23 @@ updateGridValue rowIndex colIndex squareValue grid =
 
 
 indexedFoldl : (Int -> a -> b -> b) -> b -> List a -> b
-indexedFoldl func start arr =
-    case List.head arr of
+indexedFoldl func initialValue list =
+    case List.head list of
         Just a ->
-            indexedFoldlInternal 0 func (func 0 a start) arr
+            indexedFoldlInternal 0 func initialValue list
 
         Nothing ->
-            start
+            initialValue
 
 
 indexedFoldlInternal : Int -> (Int -> a -> b -> b) -> b -> List a -> b
-indexedFoldlInternal index func start arr =
-    case ( List.head arr, List.tail arr ) of
+indexedFoldlInternal currentIndex func accumulator list =
+    case ( List.head list, List.tail list ) of
         ( Just head, Just tail ) ->
-            indexedFoldlInternal (index + 1) func (func index head start) tail
+            indexedFoldlInternal (currentIndex + 1) func (func currentIndex head accumulator) tail
 
         _ ->
-            start
+            accumulator
 
 
 appendToListInDict : String -> a -> Dict.Dict String (List a) -> Dict.Dict String (List a)
