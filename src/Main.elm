@@ -4,6 +4,7 @@ import Html exposing (Html, text, div, h1, button)
 import Html.Attributes exposing (class, attribute)
 import Html.Events exposing (onClick)
 import Dict
+import IndexedFoldl exposing (indexedFoldl)
 
 
 ---- MODEL ----
@@ -69,21 +70,6 @@ updateGridValue rowIndex colIndex squareValue grid =
                     row
         )
         grid
-
-
-indexedFoldl : (Int -> a -> b -> b) -> b -> List a -> b
-indexedFoldl func initialValue list =
-    indexedFoldlInternal 0 func initialValue list
-
-
-indexedFoldlInternal : Int -> (Int -> a -> b -> b) -> b -> List a -> b
-indexedFoldlInternal currentIndex func accumulator list =
-    case list of
-        [] ->
-            accumulator
-
-        head :: tail ->
-            indexedFoldlInternal (currentIndex + 1) func (func currentIndex head accumulator) tail
 
 
 appendToListInDict : String -> a -> Dict.Dict String (List a) -> Dict.Dict String (List a)
