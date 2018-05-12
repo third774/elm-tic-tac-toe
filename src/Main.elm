@@ -169,16 +169,23 @@ maybeMapSquareValueToWinner squareValue =
 
 
 mapSquareValueToString : SquareValue -> String
-mapSquareValueToString sv =
-    case sv of
-        PlayerSymbol X ->
-            "⚔️"
-
-        PlayerSymbol O ->
-            "⏰"
+mapSquareValueToString squareValue =
+    case squareValue of
+        PlayerSymbol p ->
+            mapPlayerToString p
 
         Empty ->
             ""
+
+
+mapPlayerToString : Player -> String
+mapPlayerToString player =
+    case player of
+        X ->
+            "⚔️"
+
+        O ->
+            "⏰"
 
 
 allTheSameValues : List a -> Maybe a
@@ -242,14 +249,11 @@ renderSquare colIndex rowIndex squareValue =
                 Empty ->
                     "square"
 
-                option2 ->
+                _ ->
                     "square square-filled"
     in
         div [ class className, attribute "aria-role" "button", onClick (UpdateSquare rowIndex colIndex) ]
-            [ text
-                (mapSquareValueToString
-                    squareValue
-                )
+            [ text (mapSquareValueToString squareValue)
             ]
 
 
@@ -281,7 +285,7 @@ view model =
                     []
 
                 Just winner ->
-                    [ h1 [] [ text (toString winner ++ " wins!") ] ]
+                    [ h1 [] [ text (mapPlayerToString winner ++ " wins!") ] ]
 
         heading =
             h1
