@@ -73,12 +73,7 @@ updateGridValue rowIndex colIndex squareValue grid =
 
 indexedFoldl : (Int -> a -> b -> b) -> b -> List a -> b
 indexedFoldl func initialValue list =
-    case List.head list of
-        Just a ->
-            indexedFoldlInternal 0 func initialValue list
-
-        Nothing ->
-            initialValue
+    indexedFoldlInternal 0 func initialValue list
 
 
 indexedFoldlInternal : Int -> (Int -> a -> b -> b) -> b -> List a -> b
