@@ -3,7 +3,6 @@ module Main exposing (..)
 import Html exposing (Html, text, div, h1, button)
 import Html.Attributes exposing (class, attribute)
 import Html.Events exposing (onClick)
-import Array exposing (Array)
 import Dict
 
 
@@ -22,7 +21,7 @@ type alias Winner =
 
 
 type alias Grid =
-    Array (Array SquareValue)
+    List (List SquareValue)
 
 
 type SquareValue
@@ -37,7 +36,7 @@ type Player
 
 init : ( Model, Cmd Msg )
 init =
-    ( { grid = Array.fromList [ Array.fromList [ Empty, Empty, Empty ], Array.fromList [ Empty, Empty, Empty ], Array.fromList [ Empty, Empty, Empty ] ]
+    ( { grid = [ [ Empty, Empty, Empty ], [ Empty, Empty, Empty ], [ Empty, Empty, Empty ] ]
       , currentPlayerSymbol = X
       , winner = Nothing
       }
@@ -56,20 +55,20 @@ type Msg
 
 updateGridValue : Int -> Int -> SquareValue -> Grid -> Grid
 updateGridValue rowIndex colIndex squareValue grid =
-    Array.indexedMap
+    List.indexedMap
         (\rowI ->
             \row ->
-                if rowI == rowIndex then
-                    Array.set colIndex squareValue row
-                else
+                List.indexedMap
+                    (\colI ->
+                        \oldSquareValue ->
+                            if rowI == rowIndex && colI == colIndex then
+                                squareValue
+                            else
+                                oldSquareValue
+                    )
                     row
         )
         grid
-
-
-indexWithValue : Array a -> Array ( Int, a )
-indexWithValue list =
-    Array.indexedMap (\i -> \v -> ( i, v )) list
 
 
 indexedFoldl : (Int -> a -> b -> b) -> b -> List a -> b
@@ -111,32 +110,32 @@ parseGridForWinner grid =
 
         resultsDictValues =
             grid
-                |> indexWithValue
-                |> Array.foldl
-                    (\( rowIndex, row ) ->
-                        \rowResults ->
-                            row
-                                |> indexWithValue
-                                |> Array.foldl
-                                    (\( colIndex, squareValue ) ->
-                                        \colResults ->
-                                            let
-                                                nonDiagonalResults =
-                                                    colResults
-                                                        |> appendToListInDict ("Horizontal" ++ toString colIndex) squareValue
-                                                        |> appendToListInDict ("Vertical" ++ toString rowIndex) squareValue
+                |> indexedFoldl
+                    (\rowIndex ->
+                        \row ->
+                            \rowResults ->
+                                row
+                                    |> indexedFoldl
+                                        (\colIndex ->
+                                            \squareValue ->
+                                                \colResults ->
+                                                    let
+                                                        nonDiagonalResults =
+                                                            colResults
+                                                                |> appendToListInDict ("Horizontal" ++ toString colIndex) squareValue
+                                                                |> appendToListInDict ("Vertical" ++ toString rowIndex) squareValue
 
-                                                withDiagonalResults =
-                                                    if colIndex == rowIndex then
-                                                        nonDiagonalResults |> appendToListInDict ("TopLeftToBottomRight") squareValue
-                                                    else if (colIndex + rowIndex) == (Array.length row) - 1 then
-                                                        nonDiagonalResults |> appendToListInDict ("BottomLeftToTopRight") squareValue
-                                                    else
-                                                        nonDiagonalResults
-                                            in
-                                                withDiagonalResults
-                                    )
-                                    rowResults
+                                                        withDiagonalResults =
+                                                            if colIndex == rowIndex then
+                                                                nonDiagonalResults |> appendToListInDict ("TopLeftToBottomRight") squareValue
+                                                            else if (colIndex + rowIndex) == (List.length row) - 1 then
+                                                                nonDiagonalResults |> appendToListInDict ("BottomLeftToTopRight") squareValue
+                                                            else
+                                                                nonDiagonalResults
+                                                    in
+                                                        withDiagonalResults
+                                        )
+                                        rowResults
                     )
                     emptyDict
                 |> Dict.values
@@ -153,6 +152,28 @@ parseGridForWinner grid =
                                 allTheSameValues resultSet |> maybeMapSquareValueToWinner
                 )
                 Nothing
+
+
+getSquareValueAtCoordinates : Int -> Int -> Grid -> SquareValue
+getSquareValueAtCoordinates rowIndex colIndex grid =
+    indexedFoldl
+        (\rowI ->
+            \row ->
+                \acc ->
+                    indexedFoldl
+                        (\colI ->
+                            \squareValue ->
+                                \acc ->
+                                    if rowIndex == rowI && colIndex == colI then
+                                        squareValue
+                                    else
+                                        acc
+                        )
+                        acc
+                        row
+        )
+        Empty
+        grid
 
 
 maybeMapSquareValueToWinner : Maybe SquareValue -> Winner
@@ -206,10 +227,10 @@ update msg model =
     case msg of
         UpdateSquare rowIndex colIndex ->
             let
-                currentValue =
-                    Array.get rowIndex model.grid |> Maybe.andThen (Array.get colIndex) |> Maybe.withDefault Empty
+                targetSquare =
+                    getSquareValueAtCoordinates rowIndex colIndex model.grid
             in
-                case currentValue of
+                case targetSquare of
                     Empty ->
                         let
                             updatedGrid =
@@ -257,22 +278,19 @@ renderSquare colIndex rowIndex squareValue =
             ]
 
 
-renderRow : Int -> Array SquareValue -> Html Msg
+renderRow : Int -> List SquareValue -> Html Msg
 renderRow rowIndex row =
     div [ class "row" ]
-        (Array.toList
-            (Array.indexedMap (\colIndex -> renderSquare colIndex rowIndex) row)
-        )
+        (List.indexedMap (\colIndex -> renderSquare colIndex rowIndex) row)
 
 
 renderGrid : Grid -> Html Msg
 renderGrid grid =
     div []
-        (Array.toList
-            (Array.indexedMap
-                (\rowIndex -> renderRow rowIndex)
-                grid
-            )
+        ((List.indexedMap
+            (\rowIndex -> renderRow rowIndex)
+            grid
+         )
         )
 
 
