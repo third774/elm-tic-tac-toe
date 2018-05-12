@@ -227,31 +227,22 @@ update msg model =
     case msg of
         UpdateSquare rowIndex colIndex ->
             let
-                targetSquare =
-                    getSquareValueAtCoordinates rowIndex colIndex model.grid
+                updatedGrid =
+                    (updateGridValue rowIndex colIndex (PlayerSymbol model.currentPlayerSymbol) model.grid)
             in
-                case targetSquare of
-                    Empty ->
-                        let
-                            updatedGrid =
-                                (updateGridValue rowIndex colIndex (PlayerSymbol model.currentPlayerSymbol) model.grid)
-                        in
-                            ( { model
-                                | grid = updatedGrid
-                                , winner = parseGridForWinner updatedGrid
-                                , currentPlayerSymbol =
-                                    case model.currentPlayerSymbol of
-                                        X ->
-                                            O
+                ( { model
+                    | grid = updatedGrid
+                    , winner = parseGridForWinner updatedGrid
+                    , currentPlayerSymbol =
+                        case model.currentPlayerSymbol of
+                            X ->
+                                O
 
-                                        O ->
-                                            X
-                              }
-                            , Cmd.none
-                            )
-
-                    _ ->
-                        ( model, Cmd.none )
+                            O ->
+                                X
+                  }
+                , Cmd.none
+                )
 
         ResetGame ->
             init
@@ -265,15 +256,30 @@ update msg model =
 renderSquare : Int -> Int -> SquareValue -> Html Msg
 renderSquare colIndex rowIndex squareValue =
     let
-        className =
+        occupied =
             case squareValue of
                 Empty ->
-                    "square"
+                    False
 
                 _ ->
-                    "square square-filled"
+                    True
+
+        className =
+            if occupied then
+                "square square-filled"
+            else
+                "square"
+
+        clickHandler =
+            if occupied then
+                []
+            else
+                [ onClick (UpdateSquare rowIndex colIndex) ]
     in
-        div [ class className, attribute "aria-role" "button", onClick (UpdateSquare rowIndex colIndex) ]
+        div
+            (List.concat
+                [ [ class className, attribute "aria-role" "button" ], clickHandler ]
+            )
             [ text (mapSquareValueToString squareValue)
             ]
 
