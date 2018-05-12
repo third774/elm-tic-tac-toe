@@ -148,28 +148,6 @@ parseGridForWinner grid =
                 Nothing
 
 
-getSquareValueAtCoordinates : Int -> Int -> Grid -> SquareValue
-getSquareValueAtCoordinates rowIndex colIndex grid =
-    indexedFoldl
-        (\rowI ->
-            \row ->
-                \acc ->
-                    indexedFoldl
-                        (\colI ->
-                            \squareValue ->
-                                \acc ->
-                                    if rowIndex == rowI && colIndex == colI then
-                                        squareValue
-                                    else
-                                        acc
-                        )
-                        acc
-                        row
-        )
-        Empty
-        grid
-
-
 maybeMapSquareValueToWinner : Maybe SquareValue -> Winner
 maybeMapSquareValueToWinner squareValue =
     case squareValue of
