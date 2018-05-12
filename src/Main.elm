@@ -1,7 +1,7 @@
 module Main exposing (..)
 
 import Html exposing (Html, text, div, h1, button)
-import Html.Attributes exposing (class)
+import Html.Attributes exposing (class, attribute)
 import Html.Events exposing (onClick)
 import Array exposing (Array)
 import Dict
@@ -216,18 +216,18 @@ renderSquare colIndex rowIndex squareValue =
                     "square square-filled"
     in
         div [ class className, attribute "aria-role" "button", onClick (UpdateSquare rowIndex colIndex) ]
-        [ text
-            (case squareValue of
-                PlayerSymbol X ->
-                    "⚔️"
+            [ text
+                (case squareValue of
+                    PlayerSymbol X ->
+                        "⚔️"
 
-                PlayerSymbol O ->
-                    "⏰"
+                    PlayerSymbol O ->
+                        "⏰"
 
-                Empty ->
-                    ""
-            )
-        ]
+                    Empty ->
+                        ""
+                )
+            ]
 
 
 renderRow : Int -> Array SquareValue -> Html Msg
@@ -251,14 +251,37 @@ renderGrid grid =
 
 view : Model -> Html Msg
 view model =
-    div []
-        [ h1 [ class "heading" ] [ text "Tic Tac Toe" ]
-        , renderGrid model.grid
-        , button [ class "reset", onClick ResetGame ] [ text "Reset" ]
-        ]
+    let
+        winner =
+            case model.winner of
+                Nothing ->
+                    []
+
+                Just winner ->
+                    [ h1 [] [ text (toString winner ++ " wins!") ] ]
+
+        heading =
+            h1
+                [ class "heading" ]
+                [ text "Tic Tac Toe" ]
+    in
+        div []
+            (List.concat
+                [ [ heading
+                  ]
+                , [ renderGrid model.grid
+                  , button [ class "reset", onClick ResetGame ] [ text "Reset" ]
+                  ]
+                , winner
+                ]
+            )
 
 
 
+-- ((
+--  )
+--     :: winner
+-- )
 ---- PROGRAM ----
 
 
