@@ -119,25 +119,19 @@ parseGridForWinner grid =
                                         (\colIndex ->
                                             \squareValue ->
                                                 \colResults ->
-                                                    let
-                                                        nonDiagonalResults =
-                                                            colResults
-                                                                |> appendToListInDict ("Horizontal" ++ toString colIndex) squareValue
-                                                                |> appendToListInDict ("Vertical" ++ toString rowIndex) squareValue
-
-                                                        oneDiagResults =
-                                                            if colIndex == rowIndex then
-                                                                nonDiagonalResults |> appendToListInDict ("TopLeftToBottomRight") squareValue
+                                                    colResults
+                                                        |> appendToListInDict ("Horizontal" ++ toString colIndex) squareValue
+                                                        |> appendToListInDict ("Vertical" ++ toString rowIndex) squareValue
+                                                        |> (if colIndex == rowIndex then
+                                                                appendToListInDict ("TopLeftToBottomRight") squareValue
                                                             else
-                                                                nonDiagonalResults
-
-                                                        twoDiagResults =
-                                                            if (colIndex + rowIndex) == (List.length row - 1) then
-                                                                nonDiagonalResults |> appendToListInDict ("BottomLeftToTopRight") squareValue
+                                                                identity
+                                                           )
+                                                        |> (if (colIndex + rowIndex) == (List.length row - 1) then
+                                                                appendToListInDict ("BottomLeftToTopRight") squareValue
                                                             else
-                                                                oneDiagResults
-                                                    in
-                                                        twoDiagResults
+                                                                identity
+                                                           )
                                         )
                                         rowResults
                     )
