@@ -104,10 +104,6 @@ appendToListInDict keyName value dict =
 parseGridForWinner : Grid -> Winner
 parseGridForWinner grid =
     let
-        emptyDict : Dict.Dict String (List SquareValue)
-        emptyDict =
-            Dict.empty
-
         resultsDict =
             grid
                 |> indexedFoldl
@@ -135,13 +131,10 @@ parseGridForWinner grid =
                                         )
                                         rowResults
                     )
-                    emptyDict
-
-        resultsDictValues =
-            resultsDict
-                |> Dict.values
+                    Dict.empty
     in
-        resultsDictValues
+        resultsDict
+            |> Dict.values
             |> List.foldl
                 (\resultSet ->
                     \winner ->
