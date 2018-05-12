@@ -108,7 +108,7 @@ parseGridForWinner grid =
         emptyDict =
             Dict.empty
 
-        resultsDictValues =
+        resultsDict =
             grid
                 |> indexedFoldl
                     (\rowIndex ->
@@ -125,19 +125,26 @@ parseGridForWinner grid =
                                                                 |> appendToListInDict ("Horizontal" ++ toString colIndex) squareValue
                                                                 |> appendToListInDict ("Vertical" ++ toString rowIndex) squareValue
 
-                                                        withDiagonalResults =
+                                                        oneDiagResults =
                                                             if colIndex == rowIndex then
                                                                 nonDiagonalResults |> appendToListInDict ("TopLeftToBottomRight") squareValue
-                                                            else if (colIndex + rowIndex) == (List.length row) - 1 then
-                                                                nonDiagonalResults |> appendToListInDict ("BottomLeftToTopRight") squareValue
                                                             else
                                                                 nonDiagonalResults
+
+                                                        twoDiagResults =
+                                                            if (colIndex + rowIndex) == (List.length row - 1) then
+                                                                nonDiagonalResults |> appendToListInDict ("BottomLeftToTopRight") squareValue
+                                                            else
+                                                                oneDiagResults
                                                     in
-                                                        withDiagonalResults
+                                                        twoDiagResults
                                         )
                                         rowResults
                     )
                     emptyDict
+
+        resultsDictValues =
+            resultsDict
                 |> Dict.values
     in
         resultsDictValues
