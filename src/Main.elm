@@ -72,6 +72,26 @@ indexWithValue list =
     Array.indexedMap (\i -> \v -> ( i, v )) list
 
 
+indexedFoldl : (Int -> a -> b -> b) -> b -> List a -> b
+indexedFoldl func start arr =
+    case List.head arr of
+        Just a ->
+            indexedFoldlInternal 0 func (func 0 a start) arr
+
+        Nothing ->
+            start
+
+
+indexedFoldlInternal : Int -> (Int -> a -> b -> b) -> b -> List a -> b
+indexedFoldlInternal index func start arr =
+    case ( List.head arr, List.tail arr ) of
+        ( Just head, Just tail ) ->
+            indexedFoldlInternal (index + 1) func (func index head start) tail
+
+        _ ->
+            start
+
+
 appendToListInDict : String -> a -> Dict.Dict String (List a) -> Dict.Dict String (List a)
 appendToListInDict keyName value dict =
     case Dict.get keyName dict of
