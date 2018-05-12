@@ -206,7 +206,16 @@ update msg model =
 
 renderSquare : Int -> Int -> SquareValue -> Html Msg
 renderSquare colIndex rowIndex squareValue =
-    div [ class "square", onClick (UpdateSquare rowIndex colIndex) ]
+    let
+        className =
+            case squareValue of
+                Empty ->
+                    "square"
+
+                option2 ->
+                    "square square-filled"
+    in
+        div [ class className, attribute "aria-role" "button", onClick (UpdateSquare rowIndex colIndex) ]
         [ text
             (case squareValue of
                 PlayerSymbol X ->
