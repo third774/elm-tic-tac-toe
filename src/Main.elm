@@ -140,9 +140,6 @@ parseGridForWinner grid =
                     )
                     emptyDict
                 |> Dict.values
-
-        _ =
-            resultsDictValues |> toString |> Debug.log "results"
     in
         resultsDictValues
             |> List.foldl
@@ -169,6 +166,19 @@ maybeMapSquareValueToWinner squareValue =
 
         _ ->
             Nothing
+
+
+mapSquareValueToString : SquareValue -> String
+mapSquareValueToString sv =
+    case sv of
+        PlayerSymbol X ->
+            "⚔️"
+
+        PlayerSymbol O ->
+            "⏰"
+
+        Empty ->
+            ""
 
 
 allTheSameValues : List a -> Maybe a
@@ -237,15 +247,8 @@ renderSquare colIndex rowIndex squareValue =
     in
         div [ class className, attribute "aria-role" "button", onClick (UpdateSquare rowIndex colIndex) ]
             [ text
-                (case squareValue of
-                    PlayerSymbol X ->
-                        "⚔️"
-
-                    PlayerSymbol O ->
-                        "⏰"
-
-                    Empty ->
-                        ""
+                (mapSquareValueToString
+                    squareValue
                 )
             ]
 
