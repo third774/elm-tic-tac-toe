@@ -277,14 +277,6 @@ view model =
             )
 
 
-
--- ((
---  )
---     :: winner
--- )
----- PROGRAM ----
-
-
 main : Program Never Model Msg
 main =
     Html.program
