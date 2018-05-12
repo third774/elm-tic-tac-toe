@@ -286,7 +286,7 @@ view model =
         heading =
             h1
                 [ class "heading" ]
-                [ text "Tic Tac Toe" ]
+                [ text "Elm Tic Tac Toe" ]
     in
         div []
             (List.concat
