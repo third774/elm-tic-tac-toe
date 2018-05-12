@@ -123,12 +123,12 @@ parseGridForWinner grid =
                                                         |> appendToListInDict ("Horizontal" ++ toString colIndex) squareValue
                                                         |> appendToListInDict ("Vertical" ++ toString rowIndex) squareValue
                                                         |> (if colIndex == rowIndex then
-                                                                appendToListInDict ("TopLeftToBottomRight") squareValue
+                                                                appendToListInDict "TopLeftToBottomRight" squareValue
                                                             else
                                                                 identity
                                                            )
-                                                        |> (if (colIndex + rowIndex) == (List.length row - 1) then
-                                                                appendToListInDict ("BottomLeftToTopRight") squareValue
+                                                        |> (if colIndex + rowIndex == List.length row - 1 then
+                                                                appendToListInDict "BottomLeftToTopRight" squareValue
                                                             else
                                                                 identity
                                                            )
