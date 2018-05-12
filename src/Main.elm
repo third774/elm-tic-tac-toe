@@ -78,12 +78,12 @@ indexedFoldl func initialValue list =
 
 indexedFoldlInternal : Int -> (Int -> a -> b -> b) -> b -> List a -> b
 indexedFoldlInternal currentIndex func accumulator list =
-    case ( List.head list, List.tail list ) of
-        ( Just head, Just tail ) ->
-            indexedFoldlInternal (currentIndex + 1) func (func currentIndex head accumulator) tail
-
-        _ ->
+    case list of
+        [] ->
             accumulator
+
+        head :: tail ->
+            indexedFoldlInternal (currentIndex + 1) func (func currentIndex head accumulator) tail
 
 
 appendToListInDict : String -> a -> Dict.Dict String (List a) -> Dict.Dict String (List a)
