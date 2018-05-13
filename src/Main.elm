@@ -12,7 +12,7 @@ import IndexedFoldl exposing (indexedFoldl)
 
 type alias Model =
     { grid : Grid
-    , currentPlayerSymbol : Player
+    , currentPlayer : Player
     , winner : Winner
     }
 
@@ -38,7 +38,7 @@ type Player
 init : ( Model, Cmd Msg )
 init =
     ( { grid = [ [ Empty, Empty, Empty ], [ Empty, Empty, Empty ], [ Empty, Empty, Empty ] ]
-      , currentPlayerSymbol = X
+      , currentPlayer = X
       , winner = Nothing
       }
     , Cmd.none
@@ -175,34 +175,68 @@ allTheSameValues list =
             Nothing
 
 
+noMoreMoves : Grid -> Bool
+noMoreMoves grid =
+    List.foldl (++) [] grid
+        |> List.any
+            (\sv ->
+                case sv of
+                    Empty ->
+                        True
+
+                    _ ->
+                        False
+            )
+        |> not
+
+
+gameIsOver : Model -> Bool
+gameIsOver model =
+    case ( model.winner, noMoreMoves model.grid ) of
+        ( Just a, _ ) ->
+            True
+
+        ( Nothing, True ) ->
+            True
+
+        _ ->
+            False
+
+
+invertPlayer : Player -> Player
+invertPlayer currentPlayer =
+    case currentPlayer of
+        X ->
+            O
+
+        O ->
+            X
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         UpdateSquare rowIndex colIndex ->
             let
                 updatedGrid =
-                    (updateGridValue rowIndex colIndex (PlayerSymbol model.currentPlayerSymbol) model.grid)
+                    updateGridValue rowIndex colIndex (PlayerSymbol model.currentPlayer) model.grid
             in
-                ( { model
-                    | grid = updatedGrid
-                    , winner = parseGridForWinner updatedGrid
-                    , currentPlayerSymbol =
-                        case model.currentPlayerSymbol of
-                            X ->
-                                O
-
-                            O ->
-                                X
-                  }
-                , Cmd.none
-                )
+                if gameIsOver model then
+                    ( model, Cmd.none )
+                else
+                    ( { model
+                        | grid = updatedGrid
+                        , winner = parseGridForWinner updatedGrid
+                        , currentPlayer = invertPlayer model.currentPlayer
+                      }
+                    , Cmd.none
+                    )
 
         ResetGame ->
             init
 
 
 
--- ( model, Cmd.none )
 ---- VIEW ----
 
 
@@ -253,17 +287,22 @@ renderGrid grid =
         )
 
 
+renderWinner : Model -> List (Html Msg)
+renderWinner model =
+    case ( model.winner, noMoreMoves model.grid ) of
+        ( Just winner, _ ) ->
+            [ h1 [] [ text (mapPlayerToString winner ++ " wins!") ] ]
+
+        ( Nothing, True ) ->
+            [ h1 [] [ text "Tie!" ] ]
+
+        _ ->
+            []
+
+
 view : Model -> Html Msg
 view model =
     let
-        winner =
-            case model.winner of
-                Nothing ->
-                    []
-
-                Just winner ->
-                    [ h1 [] [ text (mapPlayerToString winner ++ " wins!") ] ]
-
         heading =
             h1
                 [ class "heading" ]
@@ -276,7 +315,7 @@ view model =
                 , [ renderGrid model.grid
                   , button [ class "reset", onClick ResetGame ] [ text "Reset" ]
                   ]
-                , winner
+                , renderWinner model
                 ]
             )
 
