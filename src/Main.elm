@@ -287,17 +287,17 @@ renderGrid grid =
         )
 
 
-renderWinner : Model -> List (Html Msg)
+renderWinner : Model -> Html Msg
 renderWinner model =
     case ( model.winner, noMoreMoves model.grid ) of
         ( Just winner, _ ) ->
-            [ h1 [] [ text (mapPlayerToString winner ++ " wins!") ] ]
+            h1 [] [ text (mapPlayerToString winner ++ " wins!") ]
 
         ( Nothing, True ) ->
-            [ h1 [] [ text "Tie!" ] ]
+            h1 [] [ text "Tie!" ]
 
         _ ->
-            []
+            text ""
 
 
 view : Model -> Html Msg
@@ -315,7 +315,7 @@ view model =
                 , [ renderGrid model.grid
                   , button [ class "reset", onClick ResetGame ] [ text "Reset" ]
                   ]
-                , renderWinner model
+                , [ renderWinner model ]
                 ]
             )
 
