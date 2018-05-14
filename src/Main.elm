@@ -309,15 +309,11 @@ view model =
                 [ text "Elm Tic Tac Toe" ]
     in
         div []
-            (List.concat
-                [ [ heading
-                  ]
-                , [ renderGrid model.grid
-                  , button [ class "reset", onClick ResetGame ] [ text "Reset" ]
-                  ]
-                , [ renderWinner model ]
-                ]
-            )
+            [ heading
+            , renderGrid model.grid
+            , button [ class "reset", onClick ResetGame ] [ text "Reset" ]
+            , renderWinner model
+            ]
 
 
 main : Program Never Model Msg
