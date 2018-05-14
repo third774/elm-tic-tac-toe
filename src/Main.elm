@@ -97,8 +97,8 @@ parseGridForWinner grid =
                                             \squareValue ->
                                                 \colResults ->
                                                     colResults
-                                                        |> appendToListInDict ("Horizontal" ++ toString colIndex) squareValue
-                                                        |> appendToListInDict ("Vertical" ++ toString rowIndex) squareValue
+                                                        |> appendToListInDict ("Vertical" ++ toString colIndex) squareValue
+                                                        |> appendToListInDict ("Horizontal" ++ toString rowIndex) squareValue
                                                         |> (if colIndex == rowIndex then
                                                                 appendToListInDict "TopLeftToBottomRight" squareValue
                                                             else
