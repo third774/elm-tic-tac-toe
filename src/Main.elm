@@ -124,21 +124,22 @@ parseGridForWinner grid =
                                 Just a
 
                             Nothing ->
-                                allTheSameValues resultSet |> maybeMapSquareValueToWinner
+                                allTheSameValues resultSet
+                                    |> Maybe.andThen mapSquareValueToWinner
                 )
                 Nothing
 
 
-maybeMapSquareValueToWinner : Maybe SquareValue -> Winner
-maybeMapSquareValueToWinner squareValue =
+mapSquareValueToWinner : SquareValue -> Winner
+mapSquareValueToWinner squareValue =
     case squareValue of
-        Just (PlayerSymbol X) ->
+        PlayerSymbol X ->
             Just X
 
-        Just (PlayerSymbol O) ->
+        PlayerSymbol O ->
             Just O
 
-        _ ->
+        Empty ->
             Nothing
 
 
