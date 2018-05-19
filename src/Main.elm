@@ -157,10 +157,10 @@ mapPlayerToString : Player -> String
 mapPlayerToString player =
     case player of
         X ->
-            "⚔️"
+            "X"
 
         O ->
-            "⏰"
+            "O"
 
 
 allTheSameValues : List a -> Maybe a
@@ -292,7 +292,7 @@ renderWinner : Model -> Html Msg
 renderWinner model =
     case ( model.winner, noMoreMoves model.grid ) of
         ( Just winner, _ ) ->
-            h1 [] [ text (mapPlayerToString winner ++ " wins!") ]
+            h1 [ class "outcome" ] [ text (mapPlayerToString winner ++ " wins!") ]
 
         ( Nothing, True ) ->
             h1 [] [ text "Tie!" ]
@@ -309,11 +309,11 @@ view model =
                 [ class "heading" ]
                 [ text "Elm Tic Tac Toe" ]
     in
-        div []
+        div [ class "container" ]
             [ heading
             , renderGrid model.grid
-            , button [ class "reset", onClick ResetGame ] [ text "Reset" ]
             , renderWinner model
+            , button [ class "reset", onClick ResetGame ] [ text "Reset" ]
             ]
 
 
