@@ -27,7 +27,7 @@ body {
 
 .heading {
   font-family: "Fugaz One";
-  margin-bottom: 0;
+  margin: 0;
   padding-bottom: 14px;
   font-size: 4rem;
   color: var(--tertiary);
