@@ -1,7 +1,7 @@
 module Main exposing (..)
 
-import Html exposing (Html, text, div, h1, button)
-import Html.Attributes exposing (class, attribute)
+import Html exposing (Html, text, div, h1, button, a)
+import Html.Attributes exposing (class, attribute, href, target)
 import Html.Events exposing (onClick)
 import Dict
 import IndexedFoldl exposing (indexedFoldl)
@@ -307,7 +307,7 @@ view model =
         heading =
             h1
                 [ class "heading" ]
-                [ text "Elm Tic Tac Toe" ]
+                [ a [ href "https://github.com/third774/elm-tic-tac-toe", target "_blank" ] [ text "Elm Tic Tac Toe" ] ]
     in
         div [ class "container" ]
             [ heading

@@ -33,6 +33,11 @@ body {
   color: var(--tertiary);
 }
 
+a {
+  color: var(--tertiary);
+  text-decoration: none;
+}
+
 .row {
   display: flex;
 }
